@@ -22,7 +22,13 @@
             padding:16px 24px; display:flex; align-items:center; justify-content:space-between;
             position:sticky; top:0; z-index:100; flex-wrap:wrap; gap:12px;
         }
-        .site-header .logo { font-size:1.6rem; font-weight:700; color:#5a3f2b; display:flex; align-items:center; gap:8px; }
+        .site-header .logo {
+            font-size:1.6rem; font-weight:700; color:#5a3f2b; display:flex; align-items:center; gap:8px;
+        }
+        .site-header .logo img {
+            height:40px; width:auto; max-width:150px; object-fit:contain;
+        }
+        .site-header .logo .logo-text { display:inline-block; }
         .site-header .logo span { background:#e8d5c4; padding:2px 10px; border-radius:30px; font-size:0.9rem; font-weight:400; color:#4a3422; }
         .header-actions { display:flex; align-items:center; gap:16px; }
         .header-actions .cart-btn {
@@ -36,12 +42,48 @@
             font-weight:700; min-width:20px; text-align:center;
         }
 
-        /* === MAIN === */
+        /* === MAIN LAYOUT === */
         .container { max-width:1280px; margin:0 auto; padding:24px 20px; }
-        .page-title { font-size:2rem; font-weight:300; margin-bottom:28px; color:#4a3422; letter-spacing:-0.5px; }
-        .page-title small { font-size:1rem; font-weight:400; color:#8a7563; display:block; margin-top:4px; }
+
+        /* === PAGE TITLE (avec couverture) === */
+        .page-title {
+            font-size:2rem; font-weight:300; margin-bottom:28px; color:#4a3422; letter-spacing:-0.5px;
+            padding:40px 30px; border-radius:20px; background-size:cover; background-position:center;
+            background-color:#f6eee8; position:relative; min-height:120px; display:flex;
+            flex-direction:column; justify-content:center; align-items:center; text-align:center;
+        }
+        .page-title .title-text {
+            background:rgba(255,255,255,0.7); padding:12px 24px; border-radius:40px; display:inline-block;
+            backdrop-filter:blur(2px);
+        }
+        .page-title .title-text h1 { font-size:2rem; margin:0; }
+        .page-title .title-text small { font-size:1rem; font-weight:400; color:#4a3422; display:block; margin-top:4px; }
 
         /* === PRODUCT GRID === */
+        .main-layout { display:flex; gap:30px; margin-top:20px; align-items:flex-start; }
+        .category-sidebar {
+            flex:0 0 200px; background:#fff; border-radius:16px; padding:16px;
+            border:1px solid #f0e6dc; position:sticky; top:100px; max-height:calc(100vh - 120px);
+            overflow-y:auto;
+        }
+        .category-sidebar h3 { font-size:1rem; font-weight:600; color:#4a3422; margin-bottom:12px; border-bottom:2px solid #f0e6dc; padding-bottom:8px; }
+        .category-sidebar .cat-list { display:flex; flex-direction:column; gap:6px; }
+        .category-sidebar .cat-item {
+            padding:6px 12px; border-radius:30px; cursor:pointer; transition:0.15s; font-weight:500;
+        }
+        .category-sidebar .cat-item:hover { background:#f0e6dc; }
+        .category-sidebar .cat-item.active { background:#5a3f2b; color:#fff; }
+        .category-sidebar .cat-item.all-cat { background:#e8d5c4; color:#5a3f2b; }
+        .category-sidebar .cat-item.all-cat.active { background:#5a3f2b; color:#fff; }
+
+        .product-content { flex:1; min-width:0; }
+        .search-bar { display:flex; gap:12px; margin-bottom:20px; flex-wrap:wrap; }
+        .search-bar input {
+            flex:1; padding:10px 16px; border:1px solid #dccfc4; border-radius:30px;
+            font-size:0.95rem; background:#fff; min-width:200px;
+        }
+        .search-bar input:focus { outline:none; border-color:#b3866a; box-shadow:0 0 0 3px rgba(179,134,106,0.15); }
+
         .product-grid {
             display:grid; grid-template-columns:repeat(auto-fill, minmax(220px,1fr)); gap:24px;
         }
@@ -62,8 +104,29 @@
             font-weight:600; font-size:0.9rem; cursor:pointer; transition:background 0.2s; width:100%; max-width:160px;
         }
         .product-card .add-btn:hover { background:#7a5a42; }
+        .no-products-msg { grid-column:1/-1; text-align:center; color:#8a7563; padding:40px 0; font-size:1.1rem; }
 
-        /* === CART SIDEBAR === */
+        /* === RESPONSIVE === */
+        @media (max-width:768px) {
+            .main-layout { flex-direction:column; }
+            .category-sidebar {
+                flex:unset; width:100%; position:static; max-height:none; overflow-y:visible;
+                display:flex; flex-wrap:wrap; gap:8px; padding:12px;
+            }
+            .category-sidebar h3 { width:100%; margin-bottom:4px; }
+            .category-sidebar .cat-list { flex-direction:row; flex-wrap:wrap; }
+            .category-sidebar .cat-item { padding:4px 14px; font-size:0.85rem; }
+            .product-grid { grid-template-columns:repeat(auto-fill, minmax(160px,1fr)); }
+            .page-title { padding:20px; }
+            .page-title .title-text h1 { font-size:1.5rem; }
+        }
+        @media (max-width:480px) {
+            .product-grid { grid-template-columns:1fr 1fr; gap:12px; }
+            .product-card .product-img { height:120px; }
+            .product-card .add-btn { font-size:0.75rem; padding:6px 12px; }
+        }
+
+        /* === CART SIDEBAR (inchangé) === */
         .cart-overlay {
             position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.3);
             z-index:200; display:none; justify-content:flex-end; backdrop-filter:blur(2px);
@@ -130,7 +193,7 @@
         }
         .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
 
-        /* === ADMIN PANEL === */
+        /* === ADMIN PANEL (avec nouvel onglet Design) === */
         .admin-panel {
             display:none; margin-top:40px; padding:20px 0 30px; border-top:2px dashed #dccfc4;
         }
@@ -155,7 +218,7 @@
         .admin-panel .admin-header .admin-actions .admin-close-btn:hover { background:#f0e6dc; border-radius:30px; }
 
         .admin-panel .admin-tabs {
-            display:flex; gap:12px; border-bottom:2px solid #f0e6dc; padding-bottom:8px; margin-bottom:20px;
+            display:flex; gap:12px; border-bottom:2px solid #f0e6dc; padding-bottom:8px; margin-bottom:20px; flex-wrap:wrap;
         }
         .admin-panel .admin-tabs button {
             background:none; border:none; font-size:1rem; font-weight:600; padding:6px 16px;
@@ -165,6 +228,40 @@
         .admin-panel .admin-tabs button:hover:not(.active) { background:#f0e6dc; }
         .admin-panel .tab-content { display:none; }
         .admin-panel .tab-content.active { display:block; }
+
+        /* --- Design settings form --- */
+        .design-form {
+            background:#fff; padding:20px; border-radius:16px; border:1px solid #f0e6dc;
+            margin-bottom:30px; display:grid; grid-template-columns:1fr 1fr; gap:16px;
+        }
+        .design-form .full-width { grid-column:1 / -1; }
+        .design-form label { font-weight:600; font-size:0.85rem; color:#4a3422; display:block; margin-bottom:4px; }
+        .design-form input, .design-form textarea {
+            width:100%; padding:10px 14px; border:1px solid #dccfc4; border-radius:12px;
+            font-size:0.95rem; background:#fdf8f3; font-family:inherit;
+        }
+        .design-form textarea { resize:vertical; min-height:60px; }
+        .design-form input:focus, .design-form textarea:focus { outline:none; border-color:#b3866a; box-shadow:0 0 0 3px rgba(179,134,106,0.15); }
+        .design-form .file-input-wrapper { display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
+        .design-form .file-input-wrapper input[type="file"] { flex:1; padding:8px; border:1px dashed #dccfc4; border-radius:12px; background:#fdf8f3; }
+        .design-form .form-actions { display:flex; gap:12px; justify-content:flex-end; grid-column:1 / -1; flex-wrap:wrap; }
+        .design-form .form-actions button {
+            padding:10px 28px; border:none; border-radius:40px; font-weight:600; cursor:pointer; transition:0.2s;
+        }
+        .design-form .form-actions .btn-save { background:#5a3f2b; color:#fff; }
+        .design-form .form-actions .btn-save:hover { background:#7a5a42; }
+        .design-form .form-actions .btn-reset { background:#f0e6dc; color:#6b5543; }
+        .design-form .form-actions .btn-reset:hover { background:#ddc5b0; }
+        .design-preview {
+            grid-column:1 / -1; background:#f6eee8; border-radius:12px; padding:16px; text-align:center;
+            border:1px solid #dccfc4;
+        }
+        .design-preview .preview-logo img { max-height:50px; max-width:150px; object-fit:contain; }
+        .design-preview .preview-cover {
+            width:100%; height:80px; background-size:cover; background-position:center; border-radius:8px;
+            background-color:#e8d5c4; margin-top:8px; display:flex; align-items:center; justify-content:center;
+            color:#5a3f2b; font-weight:600;
+        }
 
         /* --- Category management --- */
         .category-form {
@@ -183,7 +280,7 @@
         }
         .category-tag .del-cat { background:none; border:none; color:#8a5a4a; cursor:pointer; font-size:1.1rem; padding:0 4px; }
 
-        /* --- Product form --- */
+        /* --- Product form & list (unchanged) --- */
         .product-form {
             background:#fff; padding:20px; border-radius:16px; border:1px solid #f0e6dc;
             margin-bottom:30px; display:grid; grid-template-columns:1fr 1fr; gap:16px;
@@ -206,7 +303,6 @@
         .product-form .form-actions .btn-cancel { background:#f0e6dc; color:#6b5543; }
         .product-form .form-actions .btn-cancel:hover { background:#ddc5b0; }
 
-        /* --- Product list --- */
         .product-list { display:flex; flex-direction:column; gap:12px; }
         .product-list-item {
             background:#fff; border-radius:14px; padding:12px 16px; border:1px solid #f0e6dc;
@@ -279,31 +375,6 @@
         .success-modal .close-success { background:#5a3f2b; color:#fff; border:none; border-radius:40px; padding:12px 40px; font-weight:600; cursor:pointer; transition:0.2s; }
         .success-modal .close-success:hover { background:#7a5a42; }
 
-        /* === RESPONSIVE === */
-        @media (max-width:640px) {
-            .site-header .logo { font-size:1.2rem; }
-            .site-header .logo span { font-size:0.7rem; padding:0 8px; }
-            .header-actions .cart-btn { font-size:0.85rem; padding:6px 12px 6px 10px; }
-            .product-grid { grid-template-columns:repeat(auto-fill, minmax(160px,1fr)); gap:16px; }
-            .product-card .product-img { height:120px; }
-            .cart-panel { max-width:100%; padding:16px; }
-            .checkout-form .form-row { grid-template-columns:1fr; }
-            .order-card .order-customer { grid-template-columns:1fr; }
-            .container { padding:16px 12px; }
-            .admin-panel .admin-header { flex-direction:column; align-items:stretch; }
-            .toast { white-space:normal; max-width:90%; text-align:center; }
-            .product-form { grid-template-columns:1fr; }
-            .product-form .form-actions { flex-direction:column; align-items:stretch; }
-            .product-list-item { flex-direction:column; align-items:stretch; text-align:center; }
-            .product-list-item .thumb { align-self:center; }
-            .product-list-item .actions { justify-content:center; }
-        }
-        @media (max-width:400px) {
-            .product-grid { grid-template-columns:1fr 1fr; gap:12px; }
-            .product-card { padding:12px 10px 16px; }
-            .product-card .product-img { height:100px; }
-            .product-card .add-btn { font-size:0.75rem; padding:6px 12px; }
-        }
         .badge.pulse { animation:pulse 0.3s ease 2; }
         @keyframes pulse { 0%,100%{transform:scale(1);} 50%{transform:scale(1.25);} }
         @media print {
@@ -316,7 +387,9 @@
 
     <!-- ===== HEADER ===== -->
     <header class="site-header">
-        <div class="logo">🧶 Maille & Moi <span>fait main</span></div>
+        <div class="logo" id="logoContainer">
+            <!-- généré par JS -->
+        </div>
         <div class="header-actions">
             <button class="cart-btn" id="cartBtn">🛒 Panier <span class="badge" id="cartBadge">0</span></button>
         </div>
@@ -324,8 +397,27 @@
 
     <!-- ===== MAIN CONTENT ===== -->
     <div class="container" id="app">
-        <div class="page-title">Nos créations en crochet <small>Chaque pièce est unique, faite avec amour ❤️</small></div>
-        <div class="product-grid" id="productGrid"></div>
+        <!-- ===== PAGE TITLE (avec couverture) ===== -->
+        <div class="page-title" id="pageTitle">
+            <div class="title-text">
+                <h1 id="storeNameDisplay">Maille & Moi</h1>
+                <small id="sloganDisplay">Chaque pièce est unique, faite avec amour ❤️</small>
+            </div>
+        </div>
+
+        <!-- ===== LAYOUT : Sidebar + Products ===== -->
+        <div class="main-layout">
+            <aside class="category-sidebar" id="categorySidebar">
+                <h3>🏷️ Catégories</h3>
+                <div class="cat-list" id="categoryList"></div>
+            </aside>
+            <div class="product-content">
+                <div class="search-bar">
+                    <input type="text" id="searchInput" placeholder="🔍 Rechercher un article..." />
+                </div>
+                <div class="product-grid" id="productGrid"></div>
+            </div>
+        </div>
 
         <!-- ===== ADMIN PANEL ===== -->
         <div class="admin-panel" id="adminPanel">
@@ -340,6 +432,7 @@
                 <button class="active" data-tab="tabCategories">🏷️ Catégories</button>
                 <button data-tab="tabProducts">🧶 Articles</button>
                 <button data-tab="tabOrders">📦 Commandes</button>
+                <button data-tab="tabDesign">🎨 Design</button>
             </div>
 
             <!-- Tab: Categories -->
@@ -350,7 +443,7 @@
                     <button id="addCategoryBtn">➕ Ajouter</button>
                 </div>
                 <div id="categoryListContainer" class="category-list"></div>
-                <p style="font-size:0.85rem; color:#8a7563;">Les catégories apparaîtront dans le menu déroulant des articles.</p>
+                <p style="font-size:0.85rem; color:#8a7563;">Les catégories apparaîtront dans le menu latéral et dans le filtre.</p>
             </div>
 
             <!-- Tab: Products -->
@@ -396,6 +489,54 @@
                 </div>
                 <div id="ordersContainer"><div class="no-orders">Aucune commande pour l'instant.</div></div>
             </div>
+
+            <!-- Tab: Design -->
+            <div id="tabDesign" class="tab-content">
+                <h3 style="margin-bottom:12px;">🎨 Personnalisation du site</h3>
+                <div class="design-form" id="designForm">
+                    <div>
+                        <label>Nom de la boutique</label>
+                        <input type="text" id="designStoreName" placeholder="Maille & Moi" />
+                    </div>
+                    <div>
+                        <label>Slogan</label>
+                        <input type="text" id="designSlogan" placeholder="Chaque pièce est unique..." />
+                    </div>
+                    <div>
+                        <label>Logo (image)</label>
+                        <div class="file-input-wrapper">
+                            <input type="file" id="designLogoFile" accept="image/*" />
+                            <span style="color:#8a7563; font-size:0.85rem;">ou</span>
+                            <input type="url" id="designLogoUrl" placeholder="https://exemple.com/logo.png" style="flex:1;" />
+                        </div>
+                        <div id="logoPreview" style="margin-top:6px; display:none;">
+                            <img id="logoPreviewImg" src="" alt="Aperçu logo" style="max-height:50px; border-radius:8px; border:1px solid #dccfc4;" />
+                        </div>
+                    </div>
+                    <div>
+                        <label>Image de couverture</label>
+                        <div class="file-input-wrapper">
+                            <input type="file" id="designCoverFile" accept="image/*" />
+                            <span style="color:#8a7563; font-size:0.85rem;">ou</span>
+                            <input type="url" id="designCoverUrl" placeholder="https://exemple.com/cover.jpg" style="flex:1;" />
+                        </div>
+                        <div id="coverPreview" style="margin-top:6px; display:none;">
+                            <img id="coverPreviewImg" src="" alt="Aperçu couverture" style="max-width:100%; max-height:80px; border-radius:8px; border:1px solid #dccfc4; object-fit:cover;" />
+                        </div>
+                    </div>
+                    <div class="form-actions full-width">
+                        <button class="btn-save" id="designSaveBtn">💾 Enregistrer</button>
+                        <button class="btn-reset" id="designResetBtn">↺ Réinitialiser</button>
+                    </div>
+                    <div class="design-preview">
+                        <strong>Aperçu :</strong><br />
+                        <span id="previewStoreName">Maille & Moi</span> —
+                        <span id="previewSlogan">Chaque pièce est unique, faite avec amour ❤️</span>
+                        <div class="preview-logo" id="previewLogoContainer"></div>
+                        <div class="preview-cover" id="previewCoverContainer">Aperçu de la couverture</div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -412,8 +553,8 @@
                     <div class="form-group"><label>Nom</label><input type="text" id="lastName" placeholder="Votre nom" required /></div>
                     <div class="form-group"><label>Adresse</label><input type="text" id="address" placeholder="Rue, numéro, code postal, ville" required /></div>
                     <div class="form-group"><label>Téléphone</label>
-                        <input type="tel" id="phone" placeholder="12 34 56 78" required maxlength="8" pattern="[0-9]{8}" />
-                        <small style="color:#8a7563; font-size:0.75rem;">8 chiffres uniquement</small>
+                        <input type="tel" id="phone" placeholder="12 34 56 78 ou 12345678" maxlength="11" />
+                        <small style="color:#8a7563; font-size:0.75rem;">8 chiffres, avec ou sans espaces</small>
                     </div>
                     <button class="submit-order-btn" id="submitOrder">✅ Confirmer la commande</button>
                 </div>
@@ -455,11 +596,32 @@
             let adminOpen = false;
             let editingProductId = null;
 
+            // Filtres
+            let currentCategoryFilter = null;
+            let currentSearchQuery = '';
+
+            // =============================================================
+            // PARAMÈTRES DE DESIGN (valeurs par défaut)
+            // =============================================================
+            const DEFAULT_SETTINGS = {
+                storeName: 'Maille & Moi',
+                slogan: 'Chaque pièce est unique, faite avec amour ❤️',
+                logoImage: '', // base64 ou URL
+                coverImage: '' // base64 ou URL
+            };
+
+            let settings = { ...DEFAULT_SETTINGS };
+
             // =============================================================
             // DOM REFS
             // =============================================================
             const $ = sel => document.querySelector(sel);
             const $$ = sel => document.querySelectorAll(sel);
+
+            const logoContainer = $('#logoContainer');
+            const storeNameDisplay = $('#storeNameDisplay');
+            const sloganDisplay = $('#sloganDisplay');
+            const pageTitle = $('#pageTitle');
 
             const productGrid = $('#productGrid');
             const cartItems = $('#cartItems');
@@ -506,6 +668,28 @@
             const tabButtons = $$('.admin-tabs button');
             const tabContents = $$('.tab-content');
 
+            // Sidebar & search
+            const categoryList = $('#categoryList');
+            const searchInput = $('#searchInput');
+
+            // Design form
+            const designStoreName = $('#designStoreName');
+            const designSlogan = $('#designSlogan');
+            const designLogoFile = $('#designLogoFile');
+            const designLogoUrl = $('#designLogoUrl');
+            const designCoverFile = $('#designCoverFile');
+            const designCoverUrl = $('#designCoverUrl');
+            const logoPreview = $('#logoPreview');
+            const logoPreviewImg = $('#logoPreviewImg');
+            const coverPreview = $('#coverPreview');
+            const coverPreviewImg = $('#coverPreviewImg');
+            const designSaveBtn = $('#designSaveBtn');
+            const designResetBtn = $('#designResetBtn');
+            const previewStoreName = $('#previewStoreName');
+            const previewSlogan = $('#previewSlogan');
+            const previewLogoContainer = $('#previewLogoContainer');
+            const previewCoverContainer = $('#previewCoverContainer');
+
             // =============================================================
             // UTILITY
             // =============================================================
@@ -525,39 +709,116 @@
             // STORAGE
             // =============================================================
             function loadState() {
+                // Categories
                 try {
                     const raw = localStorage.getItem('crochet_categories');
                     categories = raw ? JSON.parse(raw) : ['Sac', 'Robe', 'Bonnet', 'Couverture', 'Sweater', 'Short', 'Bandana', 'Chapeau', 'Porte-clé'];
                     saveCategories();
                 } catch(_) { categories = ['Sac', 'Robe', 'Bonnet']; }
+                // Products
                 try {
                     const raw = localStorage.getItem('crochet_products');
                     products = raw ? JSON.parse(raw) : [];
                 } catch(_) { products = []; }
+                // Cart
                 try {
                     const raw = localStorage.getItem('crochet_cart');
                     cart = raw ? JSON.parse(raw) : [];
                 } catch(_) { cart = []; }
+                // Orders
                 try {
                     const raw = localStorage.getItem('crochet_orders');
                     orders = raw ? JSON.parse(raw) : [];
                 } catch(_) { orders = []; }
+                // Settings
+                try {
+                    const raw = localStorage.getItem('crochet_settings');
+                    if (raw) {
+                        const saved = JSON.parse(raw);
+                        settings = { ...DEFAULT_SETTINGS, ...saved };
+                    } else {
+                        settings = { ...DEFAULT_SETTINGS };
+                    }
+                } catch(_) { settings = { ...DEFAULT_SETTINGS }; }
             }
 
             function saveCategories() { localStorage.setItem('crochet_categories', JSON.stringify(categories)); }
             function saveProducts() { localStorage.setItem('crochet_products', JSON.stringify(products)); }
             function saveCart() { localStorage.setItem('crochet_cart', JSON.stringify(cart)); }
             function saveOrders() { localStorage.setItem('crochet_orders', JSON.stringify(orders)); }
+            function saveSettings() { localStorage.setItem('crochet_settings', JSON.stringify(settings)); }
 
             // =============================================================
-            // RENDER PRODUCTS (front)
+            // APPLY DESIGN SETTINGS TO DOM
+            // =============================================================
+            function applySettings() {
+                // Store name
+                storeNameDisplay.textContent = settings.storeName || DEFAULT_SETTINGS.storeName;
+                document.title = settings.storeName + ' — Crochet tendance';
+
+                // Slogan
+                sloganDisplay.textContent = settings.slogan || DEFAULT_SETTINGS.slogan;
+
+                // Logo
+                if (settings.logoImage) {
+                    logoContainer.innerHTML = `<img src="${settings.logoImage}" alt="Logo" />`;
+                } else {
+                    logoContainer.innerHTML = `<span class="logo-text">🧶 ${settings.storeName}</span> <span>fait main</span>`;
+                }
+
+                // Cover image
+                if (settings.coverImage) {
+                    pageTitle.style.backgroundImage = `url('${settings.coverImage}')`;
+                    pageTitle.style.backgroundSize = 'cover';
+                    pageTitle.style.backgroundPosition = 'center';
+                } else {
+                    pageTitle.style.backgroundImage = '';
+                    pageTitle.style.backgroundColor = '#f6eee8';
+                }
+
+                // Remplir les champs du formulaire design
+                designStoreName.value = settings.storeName || '';
+                designSlogan.value = settings.slogan || '';
+                designLogoUrl.value = settings.logoImage || '';
+                designCoverUrl.value = settings.coverImage || '';
+
+                // Prévisualisation
+                previewStoreName.textContent = settings.storeName || DEFAULT_SETTINGS.storeName;
+                previewSlogan.textContent = settings.slogan || DEFAULT_SETTINGS.slogan;
+                if (settings.logoImage) {
+                    previewLogoContainer.innerHTML = `<img src="${settings.logoImage}" alt="Logo" style="max-height:50px; max-width:150px;" />`;
+                } else {
+                    previewLogoContainer.innerHTML = '<span style="color:#8a7563;">Aucun logo</span>';
+                }
+                if (settings.coverImage) {
+                    previewCoverContainer.style.backgroundImage = `url('${settings.coverImage}')`;
+                    previewCoverContainer.style.backgroundSize = 'cover';
+                    previewCoverContainer.style.backgroundPosition = 'center';
+                    previewCoverContainer.textContent = '';
+                } else {
+                    previewCoverContainer.style.backgroundImage = '';
+                    previewCoverContainer.style.backgroundColor = '#e8d5c4';
+                    previewCoverContainer.textContent = 'Aperçu de la couverture';
+                }
+            }
+
+            // =============================================================
+            // RENDER PRODUCTS WITH FILTERS
             // =============================================================
             function renderProducts() {
-                if (products.length === 0) {
-                    productGrid.innerHTML = `<p style="grid-column:1/-1; text-align:center; color:#8a7563;">Aucun article disponible.</p>`;
+                let filtered = products;
+                if (currentCategoryFilter) {
+                    filtered = filtered.filter(p => p.category === currentCategoryFilter);
+                }
+                if (currentSearchQuery.trim() !== '') {
+                    const q = currentSearchQuery.trim().toLowerCase();
+                    filtered = filtered.filter(p => p.name.toLowerCase().includes(q));
+                }
+                if (filtered.length === 0) {
+                    productGrid.innerHTML = `<div class="no-products-msg">Aucun article ne correspond à votre recherche.</div>`;
                     return;
                 }
-                productGrid.innerHTML = products.map(p => `
+                productGrid.innerHTML = filtered.map(p => `
                     <div class="product-card" data-id="${p.id}">
                         ${p.image ? `<img class="product-img" src="${p.image}" alt="${p.name}" loading="lazy" />` : `<div class="product-img" style="display:flex;align-items:center;justify-content:center;font-size:3rem;background:#f6eee8;">🧶</div>`}
                         <div class="name">${p.name}</div>
@@ -572,7 +833,28 @@
             }
 
             // =============================================================
-            // CART
+            // SIDEBAR CATEGORY LIST
+            // =============================================================
+            function renderCategorySidebar() {
+                let html = `<div class="cat-item all-cat ${!currentCategoryFilter ? 'active' : ''}" data-cat="">📋 Toutes</div>`;
+                categories.forEach(cat => {
+                    const active = (currentCategoryFilter === cat) ? 'active' : '';
+                    html += `<div class="cat-item ${active}" data-cat="${cat}">${cat}</div>`;
+                });
+                categoryList.innerHTML = html;
+                categoryList.querySelectorAll('.cat-item').forEach(item => {
+                    item.addEventListener('click', () => {
+                        const cat = item.dataset.cat || null;
+                        currentCategoryFilter = cat;
+                        categoryList.querySelectorAll('.cat-item').forEach(el => el.classList.remove('active'));
+                        item.classList.add('active');
+                        renderProducts();
+                    });
+                });
+            }
+
+            // =============================================================
+            // CART (inchangé)
             // =============================================================
             function addToCart(productId) {
                 const existing = cart.find(c => c.productId === productId);
@@ -664,11 +946,11 @@
                 const fName = firstName.value.trim();
                 const lName = lastName.value.trim();
                 const addr = address.value.trim();
-                const tel = phone.value.trim();
+                let tel = phone.value.trim();
 
-                // === Validation du téléphone ===
-                if (!/^\d{8}$/.test(tel)) {
-                    showToast('Le numéro de téléphone doit contenir exactement 8 chiffres.', 3000);
+                const telDigits = tel.replace(/\s/g, '');
+                if (!/^\d{8}$/.test(telDigits)) {
+                    showToast('Le téléphone doit contenir exactement 8 chiffres (espaces autorisés).', 3000);
                     return;
                 }
 
@@ -687,7 +969,7 @@
                 const order = {
                     id: 'CMD-' + generateId().toUpperCase(),
                     date: getDateStr(),
-                    customer: { firstName: fName, lastName: lName, address: addr, phone: tel },
+                    customer: { firstName: fName, lastName: lName, address: addr, phone: telDigits },
                     items: items.map(c => ({ name: c.product.name, price: c.product.price, quantity: c.quantity, subtotal: c.product.price * c.quantity })),
                     total, status: 'en attente'
                 };
@@ -786,7 +1068,7 @@
             }
 
             // =============================================================
-            // CATEGORY MANAGEMENT
+            // CATEGORY MANAGEMENT (admin)
             // =============================================================
             function renderCategoryList() {
                 if (categories.length === 0) {
@@ -806,6 +1088,14 @@
                             saveCategories();
                             renderCategoryList();
                             populateCategorySelect();
+                            renderCategorySidebar();
+                            if (currentCategoryFilter === cat) {
+                                currentCategoryFilter = null;
+                                renderCategorySidebar();
+                                renderProducts();
+                            } else {
+                                renderProducts();
+                            }
                             showToast('Catégorie supprimée.');
                         }
                     });
@@ -831,12 +1121,13 @@
                 saveCategories();
                 renderCategoryList();
                 populateCategorySelect();
+                renderCategorySidebar();
                 newCategoryInput.value = '';
                 showToast('✅ Catégorie ajoutée.');
             }
 
             // =============================================================
-            // PRODUCT MANAGEMENT
+            // PRODUCT MANAGEMENT (admin)
             // =============================================================
             function renderProductList() {
                 if (products.length === 0) {
@@ -968,6 +1259,70 @@
             }
 
             // =============================================================
+            // DESIGN SETTINGS SAVE / RESET
+            // =============================================================
+            function saveDesignSettings() {
+                // Récupérer les valeurs
+                const name = designStoreName.value.trim() || DEFAULT_SETTINGS.storeName;
+                const slogan = designSlogan.value.trim() || DEFAULT_SETTINGS.slogan;
+                let logo = designLogoUrl.value.trim() || '';
+                let cover = designCoverUrl.value.trim() || '';
+
+                // Si un fichier logo est sélectionné, on le priorise
+                const logoFile = designLogoFile.files[0];
+                if (logoFile) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        logo = e.target.result;
+                        // Après chargement du logo, on sauvegarde
+                        finalizeSave(name, slogan, logo, cover);
+                    };
+                    reader.readAsDataURL(logoFile);
+                } else {
+                    // Sinon on utilise l'URL (ou vide)
+                    finalizeSave(name, slogan, logo, cover);
+                }
+            }
+
+            function finalizeSave(name, slogan, logo, cover) {
+                // Si un fichier cover est sélectionné, on le priorise
+                const coverFile = designCoverFile.files[0];
+                if (coverFile) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        cover = e.target.result;
+                        // Sauvegarde finale
+                        applyAndSave(name, slogan, logo, cover);
+                    };
+                    reader.readAsDataURL(coverFile);
+                } else {
+                    // Sinon on utilise l'URL (ou vide)
+                    applyAndSave(name, slogan, logo, cover);
+                }
+            }
+
+            function applyAndSave(name, slogan, logo, cover) {
+                settings.storeName = name;
+                settings.slogan = slogan;
+                settings.logoImage = logo;
+                settings.coverImage = cover;
+                saveSettings();
+                applySettings();
+                showToast('✅ Design mis à jour !');
+            }
+
+            function resetDesignSettings() {
+                if (confirm('Réinitialiser tous les paramètres de design aux valeurs par défaut ?')) {
+                    settings = { ...DEFAULT_SETTINGS };
+                    saveSettings();
+                    applySettings();
+                    designLogoFile.value = '';
+                    designCoverFile.value = '';
+                    showToast('↺ Design réinitialisé.');
+                }
+            }
+
+            // =============================================================
             // ADMIN CLOSE & VIEW SITE
             // =============================================================
             function closeAdmin() {
@@ -995,11 +1350,17 @@
                 if (pwd === ADMIN_PASSWORD) {
                     adminOpen = true;
                     adminPanel.classList.add('open');
+                    // Par défaut, on ouvre sur l'onglet Catégories
                     switchTab('tabCategories');
                     renderCategoryList();
                     populateCategorySelect();
                     renderProductList();
                     renderOrders();
+                    // Remplir les champs design
+                    designStoreName.value = settings.storeName || '';
+                    designSlogan.value = settings.slogan || '';
+                    designLogoUrl.value = settings.logoImage || '';
+                    designCoverUrl.value = settings.coverImage || '';
                     showToast('✅ Accès admin autorisé.');
                 } else if (pwd !== null) {
                     showToast('❌ Mot de passe incorrect.', 2500);
@@ -1015,6 +1376,13 @@
                 if (tabId === 'tabCategories') renderCategoryList();
                 else if (tabId === 'tabProducts') renderProductList();
                 else if (tabId === 'tabOrders') renderOrders();
+                else if (tabId === 'tabDesign') {
+                    // Rafraîchir les champs design
+                    designStoreName.value = settings.storeName || '';
+                    designSlogan.value = settings.slogan || '';
+                    designLogoUrl.value = settings.logoImage || '';
+                    designCoverUrl.value = settings.coverImage || '';
+                }
             }
 
             // =============================================================
@@ -1035,6 +1403,8 @@
             // =============================================================
             function init() {
                 loadState();
+                applySettings();
+                renderCategorySidebar();
                 renderProducts();
                 renderCart();
                 updateBadge();
@@ -1054,7 +1424,7 @@
                 closeSuccess.addEventListener('click', () => successOverlay.classList.remove('open'));
                 successOverlay.addEventListener('click', (e) => { if (e.target === successOverlay) successOverlay.classList.remove('open'); });
 
-                // Categories
+                // Categories (admin)
                 addCategoryBtn.addEventListener('click', addCategory);
                 newCategoryInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') addCategory(); });
 
@@ -1080,9 +1450,65 @@
                     btn.addEventListener('click', () => switchTab(btn.dataset.tab));
                 });
 
+                // Search input
+                searchInput.addEventListener('input', () => {
+                    currentSearchQuery = searchInput.value;
+                    renderProducts();
+                });
+
                 // Checkout form enter
                 document.querySelectorAll('#checkoutForm input').forEach(inp => {
                     inp.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); submitOrderFn(); } });
+                });
+
+                // Design form events
+                designSaveBtn.addEventListener('click', saveDesignSettings);
+                designResetBtn.addEventListener('click', resetDesignSettings);
+
+                // Preview images for design
+                designLogoFile.addEventListener('change', (e) => {
+                    const file = e.target.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = function(ev) {
+                            logoPreviewImg.src = ev.target.result;
+                            logoPreview.style.display = 'block';
+                        };
+                        reader.readAsDataURL(file);
+                    } else {
+                        logoPreview.style.display = 'none';
+                    }
+                });
+                designLogoUrl.addEventListener('input', () => {
+                    const url = designLogoUrl.value.trim();
+                    if (url) {
+                        logoPreviewImg.src = url;
+                        logoPreview.style.display = 'block';
+                    } else if (!designLogoFile.files[0]) {
+                        logoPreview.style.display = 'none';
+                    }
+                });
+                designCoverFile.addEventListener('change', (e) => {
+                    const file = e.target.files[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = function(ev) {
+                            coverPreviewImg.src = ev.target.result;
+                            coverPreview.style.display = 'block';
+                        };
+                        reader.readAsDataURL(file);
+                    } else {
+                        coverPreview.style.display = 'none';
+                    }
+                });
+                designCoverUrl.addEventListener('input', () => {
+                    const url = designCoverUrl.value.trim();
+                    if (url) {
+                        coverPreviewImg.src = url;
+                        coverPreview.style.display = 'block';
+                    } else if (!designCoverFile.files[0]) {
+                        coverPreview.style.display = 'none';
+                    }
                 });
 
                 // Escape
@@ -1101,7 +1527,7 @@
                     }
                 });
 
-                console.log('🧶 Maille & Moi — Admin via Ctrl+Shift+A, prix en DT, téléphone 8 chiffres.');
+                console.log('🧶 Maille & Moi — Admin via Ctrl+Shift+A, personnalisation design intégrée.');
             }
 
             document.addEventListener('DOMContentLoaded', init);

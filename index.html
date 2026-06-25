@@ -411,7 +411,10 @@
                     <div class="form-group"><label>Prénom</label><input type="text" id="firstName" placeholder="Votre prénom" required /></div>
                     <div class="form-group"><label>Nom</label><input type="text" id="lastName" placeholder="Votre nom" required /></div>
                     <div class="form-group"><label>Adresse</label><input type="text" id="address" placeholder="Rue, numéro, code postal, ville" required /></div>
-                    <div class="form-group"><label>Téléphone</label><input type="tel" id="phone" placeholder="06 12 34 56 78" required /></div>
+                    <div class="form-group"><label>Téléphone</label>
+                        <input type="tel" id="phone" placeholder="12 34 56 78" required maxlength="8" pattern="[0-9]{8}" />
+                        <small style="color:#8a7563; font-size:0.75rem;">8 chiffres uniquement</small>
+                    </div>
                     <button class="submit-order-btn" id="submitOrder">✅ Confirmer la commande</button>
                 </div>
             </div>
@@ -658,10 +661,28 @@
                 checkoutBtn.textContent = checkoutForm.classList.contains('open') ? '◀ Retour au panier' : 'Passer la commande';
             }
             function submitOrderFn() {
-                const fName = firstName.value.trim(), lName = lastName.value.trim(), addr = address.value.trim(), tel = phone.value.trim();
-                if (!fName || !lName || !addr || !tel) { showToast('Veuillez remplir tous les champs.', 2800); return; }
+                const fName = firstName.value.trim();
+                const lName = lastName.value.trim();
+                const addr = address.value.trim();
+                const tel = phone.value.trim();
+
+                // === Validation du téléphone ===
+                if (!/^\d{8}$/.test(tel)) {
+                    showToast('Le numéro de téléphone doit contenir exactement 8 chiffres.', 3000);
+                    return;
+                }
+
+                if (!fName || !lName || !addr) {
+                    showToast('Veuillez remplir tous les champs.', 2800);
+                    return;
+                }
+
                 const items = getCartItems();
-                if (items.length === 0) { showToast('Votre panier est vide.', 2000); return; }
+                if (items.length === 0) {
+                    showToast('Votre panier est vide.', 2000);
+                    return;
+                }
+
                 const total = getCartTotal();
                 const order = {
                     id: 'CMD-' + generateId().toUpperCase(),
@@ -670,15 +691,19 @@
                     items: items.map(c => ({ name: c.product.name, price: c.product.price, quantity: c.quantity, subtotal: c.product.price * c.quantity })),
                     total, status: 'en attente'
                 };
+
                 orders.unshift(order);
                 saveOrders();
                 renderOrders();
+
                 cart = [];
                 saveCart();
                 renderCart();
                 updateBadge();
+
                 cartOverlay.classList.remove('open');
                 successOverlay.classList.add('open');
+
                 firstName.value = ''; lastName.value = ''; address.value = ''; phone.value = '';
                 checkoutForm.classList.remove('open');
                 checkoutBtn.textContent = 'Passer la commande';
@@ -903,7 +928,6 @@
                 const price = parseFloat(prodPrice.value);
                 let image = prodImageUrl.value.trim();
 
-                // If file selected, use base64
                 const file = prodImageFile.files[0];
                 if (file) {
                     const reader = new FileReader();
@@ -1077,7 +1101,7 @@
                     }
                 });
 
-                console.log('🧶 Maille & Moi — Admin via Ctrl+Shift+A, prix en DT.');
+                console.log('🧶 Maille & Moi — Admin via Ctrl+Shift+A, prix en DT, téléphone 8 chiffres.');
             }
 
             document.addEventListener('DOMContentLoaded', init);

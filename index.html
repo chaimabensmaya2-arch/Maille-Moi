@@ -193,7 +193,7 @@
         }
         .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
 
-        /* === ADMIN PANEL (avec nouvel onglet Design) === */
+        /* === ADMIN PANEL === */
         .admin-panel {
             display:none; margin-top:40px; padding:20px 0 30px; border-top:2px dashed #dccfc4;
         }
@@ -443,7 +443,7 @@
                     <button id="addCategoryBtn">➕ Ajouter</button>
                 </div>
                 <div id="categoryListContainer" class="category-list"></div>
-                <p style="font-size:0.85rem; color:#8a7563;">Les catégories apparaîtront dans le menu latéral et dans le filtre.</p>
+                <p style="font-size:0.85rem; color:#8a7563;">Les catégories apparaîtront dans le menu latéral. Si vous ajoutez un article avec une catégorie qui n'existe pas, elle sera automatiquement créée.</p>
             </div>
 
             <!-- Tab: Products -->
@@ -601,15 +601,14 @@
             let currentSearchQuery = '';
 
             // =============================================================
-            // PARAMÈTRES DE DESIGN (valeurs par défaut)
+            // PARAMÈTRES DE DESIGN
             // =============================================================
             const DEFAULT_SETTINGS = {
                 storeName: 'Maille & Moi',
                 slogan: 'Chaque pièce est unique, faite avec amour ❤️',
-                logoImage: '', // base64 ou URL
-                coverImage: '' // base64 ou URL
+                logoImage: '',
+                coverImage: ''
             };
-
             let settings = { ...DEFAULT_SETTINGS };
 
             // =============================================================
@@ -709,12 +708,11 @@
             // STORAGE
             // =============================================================
             function loadState() {
-                // Categories
+                // Categories : on ne met PAS de valeurs par défaut
                 try {
                     const raw = localStorage.getItem('crochet_categories');
-                    categories = raw ? JSON.parse(raw) : ['Sac', 'Robe', 'Bonnet', 'Couverture', 'Sweater', 'Short', 'Bandana', 'Chapeau', 'Porte-clé'];
-                    saveCategories();
-                } catch(_) { categories = ['Sac', 'Robe', 'Bonnet']; }
+                    categories = raw ? JSON.parse(raw) : [];
+                } catch(_) { categories = []; }
                 // Products
                 try {
                     const raw = localStorage.getItem('crochet_products');
@@ -749,24 +747,19 @@
             function saveSettings() { localStorage.setItem('crochet_settings', JSON.stringify(settings)); }
 
             // =============================================================
-            // APPLY DESIGN SETTINGS TO DOM
+            // APPLY DESIGN SETTINGS
             // =============================================================
             function applySettings() {
-                // Store name
                 storeNameDisplay.textContent = settings.storeName || DEFAULT_SETTINGS.storeName;
                 document.title = settings.storeName + ' — Crochet tendance';
-
-                // Slogan
                 sloganDisplay.textContent = settings.slogan || DEFAULT_SETTINGS.slogan;
 
-                // Logo
                 if (settings.logoImage) {
                     logoContainer.innerHTML = `<img src="${settings.logoImage}" alt="Logo" />`;
                 } else {
                     logoContainer.innerHTML = `<span class="logo-text">🧶 ${settings.storeName}</span> <span>fait main</span>`;
                 }
 
-                // Cover image
                 if (settings.coverImage) {
                     pageTitle.style.backgroundImage = `url('${settings.coverImage}')`;
                     pageTitle.style.backgroundSize = 'cover';
@@ -776,13 +769,11 @@
                     pageTitle.style.backgroundColor = '#f6eee8';
                 }
 
-                // Remplir les champs du formulaire design
                 designStoreName.value = settings.storeName || '';
                 designSlogan.value = settings.slogan || '';
                 designLogoUrl.value = settings.logoImage || '';
                 designCoverUrl.value = settings.coverImage || '';
 
-                // Prévisualisation
                 previewStoreName.textContent = settings.storeName || DEFAULT_SETTINGS.storeName;
                 previewSlogan.textContent = settings.slogan || DEFAULT_SETTINGS.slogan;
                 if (settings.logoImage) {
@@ -1072,7 +1063,7 @@
             // =============================================================
             function renderCategoryList() {
                 if (categories.length === 0) {
-                    categoryListContainer.innerHTML = `<div class="no-categories">Aucune catégorie. Ajoutez-en une !</div>`;
+                    categoryListContainer.innerHTML = `<div class="no-categories">Aucune catégorie. Ajoutez-en une ou créez des articles avec de nouvelles catégories.</div>`;
                     return;
                 }
                 let html = '';
@@ -1127,7 +1118,7 @@
             }
 
             // =============================================================
-            // PRODUCT MANAGEMENT (admin)
+            // PRODUCT MANAGEMENT (admin) avec ajout automatique des catégories
             // =============================================================
             function renderProductList() {
                 if (products.length === 0) {
@@ -1213,11 +1204,32 @@
                 reader.readAsDataURL(file);
             }
 
+            // Nouvelle fonction pour ajouter automatiquement la catégorie si elle n'existe pas
+            function ensureCategoryExists(category) {
+                if (!category) return;
+                if (!categories.includes(category)) {
+                    categories.push(category);
+                    saveCategories();
+                    renderCategoryList();
+                    populateCategorySelect();
+                    renderCategorySidebar();
+                }
+            }
+
             function saveProductFromForm() {
                 const name = prodName.value.trim();
                 const category = prodCategorySelect.value;
                 const price = parseFloat(prodPrice.value);
                 let image = prodImageUrl.value.trim();
+
+                // Si la catégorie n'existe pas, on l'ajoute automatiquement
+                if (category && !categories.includes(category)) {
+                    categories.push(category);
+                    saveCategories();
+                    renderCategoryList();
+                    populateCategorySelect();
+                    renderCategorySidebar();
+                }
 
                 const file = prodImageFile.files[0];
                 if (file) {
@@ -1262,41 +1274,34 @@
             // DESIGN SETTINGS SAVE / RESET
             // =============================================================
             function saveDesignSettings() {
-                // Récupérer les valeurs
                 const name = designStoreName.value.trim() || DEFAULT_SETTINGS.storeName;
                 const slogan = designSlogan.value.trim() || DEFAULT_SETTINGS.slogan;
                 let logo = designLogoUrl.value.trim() || '';
                 let cover = designCoverUrl.value.trim() || '';
 
-                // Si un fichier logo est sélectionné, on le priorise
                 const logoFile = designLogoFile.files[0];
                 if (logoFile) {
                     const reader = new FileReader();
                     reader.onload = function(e) {
                         logo = e.target.result;
-                        // Après chargement du logo, on sauvegarde
                         finalizeSave(name, slogan, logo, cover);
                     };
                     reader.readAsDataURL(logoFile);
                 } else {
-                    // Sinon on utilise l'URL (ou vide)
                     finalizeSave(name, slogan, logo, cover);
                 }
             }
 
             function finalizeSave(name, slogan, logo, cover) {
-                // Si un fichier cover est sélectionné, on le priorise
                 const coverFile = designCoverFile.files[0];
                 if (coverFile) {
                     const reader = new FileReader();
                     reader.onload = function(e) {
                         cover = e.target.result;
-                        // Sauvegarde finale
                         applyAndSave(name, slogan, logo, cover);
                     };
                     reader.readAsDataURL(coverFile);
                 } else {
-                    // Sinon on utilise l'URL (ou vide)
                     applyAndSave(name, slogan, logo, cover);
                 }
             }
@@ -1350,13 +1355,11 @@
                 if (pwd === ADMIN_PASSWORD) {
                     adminOpen = true;
                     adminPanel.classList.add('open');
-                    // Par défaut, on ouvre sur l'onglet Catégories
                     switchTab('tabCategories');
                     renderCategoryList();
                     populateCategorySelect();
                     renderProductList();
                     renderOrders();
-                    // Remplir les champs design
                     designStoreName.value = settings.storeName || '';
                     designSlogan.value = settings.slogan || '';
                     designLogoUrl.value = settings.logoImage || '';
@@ -1377,7 +1380,6 @@
                 else if (tabId === 'tabProducts') renderProductList();
                 else if (tabId === 'tabOrders') renderOrders();
                 else if (tabId === 'tabDesign') {
-                    // Rafraîchir les champs design
                     designStoreName.value = settings.storeName || '';
                     designSlogan.value = settings.slogan || '';
                     designLogoUrl.value = settings.logoImage || '';
@@ -1527,7 +1529,7 @@
                     }
                 });
 
-                console.log('🧶 Maille & Moi — Admin via Ctrl+Shift+A, personnalisation design intégrée.');
+                console.log('🧶 Maille & Moi — Admin via Ctrl+Shift+A, catégories vides par défaut, ajout auto.');
             }
 
             document.addEventListener('DOMContentLoaded', init);

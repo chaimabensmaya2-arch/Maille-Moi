@@ -135,7 +135,25 @@
             display:none; margin-top:40px; padding:20px 0 30px; border-top:2px dashed #dccfc4;
         }
         .admin-panel.open { display:block; }
-        .admin-panel .admin-header { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:20px; }
+        .admin-panel .admin-header {
+            display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:20px;
+        }
+        .admin-panel .admin-header .admin-actions {
+            display:flex; gap:8px; align-items:center;
+        }
+        .admin-panel .admin-header .admin-actions button {
+            background:none; border:none; font-size:1.1rem; cursor:pointer; padding:4px 12px;
+            border-radius:30px; transition:0.15s; font-weight:500;
+        }
+        .admin-panel .admin-header .admin-actions .view-site-btn {
+            background:#e8d5c4; color:#5a3f2b;
+        }
+        .admin-panel .admin-header .admin-actions .view-site-btn:hover { background:#ddc5b0; }
+        .admin-panel .admin-header .admin-actions .admin-close-btn {
+            font-size:1.8rem; color:#6b5543; padding:0 8px;
+        }
+        .admin-panel .admin-header .admin-actions .admin-close-btn:hover { background:#f0e6dc; border-radius:30px; }
+
         .admin-panel .admin-tabs {
             display:flex; gap:12px; border-bottom:2px solid #f0e6dc; padding-bottom:8px; margin-bottom:20px;
         }
@@ -147,7 +165,6 @@
         .admin-panel .admin-tabs button:hover:not(.active) { background:#f0e6dc; }
         .admin-panel .tab-content { display:none; }
         .admin-panel .tab-content.active { display:block; }
-        .admin-panel .admin-close { float:right; background:none; border:none; font-size:1.8rem; cursor:pointer; color:#6b5543; line-height:1; }
 
         /* --- Category management --- */
         .category-form {
@@ -312,8 +329,13 @@
 
         <!-- ===== ADMIN PANEL ===== -->
         <div class="admin-panel" id="adminPanel">
-            <button class="admin-close" id="adminClose">✕</button>
-            <div class="admin-header"><h2>👑 Administration</h2></div>
+            <div class="admin-header">
+                <h2>👑 Administration</h2>
+                <div class="admin-actions">
+                    <button class="view-site-btn" id="viewSiteBtn">👁️ Voir le site</button>
+                    <button class="admin-close-btn" id="adminClose">✕</button>
+                </div>
+            </div>
             <div class="admin-tabs">
                 <button class="active" data-tab="tabCategories">🏷️ Catégories</button>
                 <button data-tab="tabProducts">🧶 Articles</button>
@@ -344,7 +366,7 @@
                         <select id="prodCategorySelect"></select>
                     </div>
                     <div>
-                        <label>Prix (€)</label>
+                        <label>Prix (DT)</label>
                         <input type="number" id="prodPrice" placeholder="39.90" step="0.01" required />
                     </div>
                     <div>
@@ -383,7 +405,7 @@
             <div class="cart-header"><h2>🛒 Votre panier</h2><button class="close-cart" id="closeCart">✕</button></div>
             <div class="cart-items" id="cartItems"><div class="empty-cart-msg">Votre panier est vide.</div></div>
             <div class="cart-footer">
-                <div class="cart-total"><span>Total</span><span id="cartTotal">0,00 €</span></div>
+                <div class="cart-total"><span>Total</span><span id="cartTotal">0,00 DT</span></div>
                 <button class="checkout-btn" id="checkoutBtn">Passer la commande</button>
                 <div class="checkout-form" id="checkoutForm">
                     <div class="form-group"><label>Prénom</label><input type="text" id="firstName" placeholder="Votre prénom" required /></div>
@@ -452,6 +474,7 @@
             const phone = $('#phone');
             const adminPanel = $('#adminPanel');
             const adminClose = $('#adminClose');
+            const viewSiteBtn = $('#viewSiteBtn');
             const ordersContainer = $('#ordersContainer');
             const orderCount = $('#orderCount');
             const exportBtn = $('#exportBtn');
@@ -483,7 +506,7 @@
             // =============================================================
             // UTILITY
             // =============================================================
-            function formatPrice(amount) { return amount.toFixed(2) + ' €'; }
+            function formatPrice(amount) { return amount.toFixed(2) + ' DT'; }
             function generateId() { return Date.now().toString(36) + Math.random().toString(36).substr(2, 6); }
             function getDateStr() {
                 return new Date().toLocaleString('fr-FR', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' });
@@ -587,7 +610,7 @@
                 const items = getCartItems();
                 if (items.length === 0) {
                     cartItems.innerHTML = `<div class="empty-cart-msg">Votre panier est vide.</div>`;
-                    cartTotal.textContent = '0,00 €';
+                    cartTotal.textContent = '0,00 DT';
                     checkoutBtn.disabled = true;
                     checkoutForm.classList.remove('open');
                     return;
@@ -758,7 +781,6 @@
                             saveCategories();
                             renderCategoryList();
                             populateCategorySelect();
-                            // Si des produits ont cette catégorie, on les laisse avec un champ vide
                             showToast('Catégorie supprimée.');
                         }
                     });
@@ -887,7 +909,6 @@
                     const reader = new FileReader();
                     reader.onload = function(e) {
                         image = e.target.result;
-                        // Continue saving
                         performSave(name, category, price, image);
                     };
                     reader.readAsDataURL(file);
@@ -923,13 +944,27 @@
             }
 
             // =============================================================
-            // TOGGLE ADMIN
+            // ADMIN CLOSE & VIEW SITE
             // =============================================================
-            function toggleAdminWithPassword() {
+            function closeAdmin() {
                 if (adminOpen) {
                     adminOpen = false;
                     adminPanel.classList.remove('open');
                     showToast('🔒 Admin fermé.');
+                }
+            }
+
+            function viewSite() {
+                closeAdmin();
+                showToast('👁️ Mode utilisateur activé.');
+            }
+
+            // =============================================================
+            // TOGGLE ADMIN WITH PASSWORD
+            // =============================================================
+            function toggleAdminWithPassword() {
+                if (adminOpen) {
+                    closeAdmin();
                     return;
                 }
                 const pwd = prompt('🔐 Entrez le mot de passe administrateur :');
@@ -987,13 +1022,8 @@
                 checkoutBtn.addEventListener('click', openCheckout);
                 submitOrder.addEventListener('click', submitOrderFn);
 
-                adminClose.addEventListener('click', () => {
-                    if (adminOpen) {
-                        adminOpen = false;
-                        adminPanel.classList.remove('open');
-                        showToast('🔒 Admin fermé.');
-                    }
-                });
+                adminClose.addEventListener('click', closeAdmin);
+                viewSiteBtn.addEventListener('click', viewSite);
 
                 exportBtn.addEventListener('click', exportCSV);
 
@@ -1047,7 +1077,7 @@
                     }
                 });
 
-                console.log('🧶 Maille & Moi — Admin via Ctrl+Shift+A');
+                console.log('🧶 Maille & Moi — Admin via Ctrl+Shift+A, prix en DT.');
             }
 
             document.addEventListener('DOMContentLoaded', init);
